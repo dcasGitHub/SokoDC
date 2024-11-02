@@ -6,6 +6,10 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 
+#define SCR_HEIGHT 480
+#define SCR_WIDTH 640
+
+#define BLK_SIZE 32
 #define BLK_HEIGHT 15
 #define BLK_WIDTH 20
 
@@ -17,8 +21,7 @@ int main() {
 	int game_over = 0;
 
         Uint32 flags = SDL_SWSURFACE|SDL_FULLSCREEN;
-        screen = SDL_SetVideoMode(640, 480, 16, flags);
-        //screen = SDL_SetVideoMode(1920, 1080, 16, flags);
+        screen = SDL_SetVideoMode(SCR_WIDTH, SCR_HEIGHT, 16, flags);
 
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
                 return -1;
@@ -42,11 +45,21 @@ int main() {
 		printf("File open failed.\n");
 	}
 
-	char temp_row_read[BLK_WIDTH];
+	char temp_row_read[256]; // 256 buffer length
+	int x_counter = 0;
+	int y_counter = 0;
 
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		fscanf(lvl_file, "%s", &temp_row_read);
-        	printf("%s\n", temp_row_read);
+		for (int j = 0; j < BLK_WIDTH; j++) {
+			printf("x_pos: %d | y_pos: %d | %c\n",
+					x_counter,
+					y_counter,
+					temp_row_read[j]);
+			y_counter++;
+		}
+		x_counter++;
+		y_counter = 0;
 	}
 	fclose(lvl_file);
 
