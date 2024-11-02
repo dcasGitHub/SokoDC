@@ -18,6 +18,13 @@ struct level_blocks {
 	char block_type;
 };
 
+/*enum player_dir {
+	UP = 0,
+	DOWN = 1,
+	LEFT = 2,
+	RIGHT = 3
+};*/
+
 int main() {
 	SDL_Surface *screen;                                         
 	
@@ -43,6 +50,7 @@ int main() {
         SDL_Surface *player_sprite;
 	SDL_Rect player_pos;
         player_sprite = IMG_Load("assets/player.png");
+	int player_dir = 0;
 
 	player_pos.x = 0;
 	player_pos.y = 0;
@@ -122,15 +130,19 @@ int main() {
 				}
 				if (event.key.keysym.sym == SDLK_UP) {
                                         player_pos.y -= BLK_SIZE;
+					player_dir = 0;
                                 }
 				if (event.key.keysym.sym == SDLK_DOWN) {
                                         player_pos.y += BLK_SIZE;
+					player_dir = 1;
                                 }
 				if (event.key.keysym.sym == SDLK_LEFT) {
                                         player_pos.x -= BLK_SIZE;
+					player_dir = 2;
                                 }
 				if (event.key.keysym.sym == SDLK_RIGHT) {
                                         player_pos.x += BLK_SIZE;
+					player_dir = 3;
                                 }
 			}
 		}
@@ -158,15 +170,25 @@ int main() {
 				}
 
 				if (level_01_array[total_counter].block_type == 'b') {
-					//crate_pos.x = level_01_array[j].y_pos * BLK_SIZE;
-					//crate_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 					SDL_BlitSurface(crate_sprite, NULL, screen, &crate_pos);
 					if (player_pos.x < crate_pos.x + BLK_SIZE &&
                                                         player_pos.x + player_pos.w > crate_pos.x &&
                                                         player_pos.y < crate_pos.y + BLK_SIZE &&
                                                         player_pos.y + player_pos.h > crate_pos.y) {
-                                                // Collision detected, reset the player's position
-                                                crate_pos.x += BLK_SIZE;
+
+						if (player_dir == 0) {
+							// Player is pushing the crate up
+							crate_pos.y -= BLK_SIZE;
+						} else if (player_dir == 1) {
+							// Player is pushing the crate down
+							crate_pos.y += BLK_SIZE;
+						} else if (player_dir == 2) {
+							// Player is pushing the crate left
+							crate_pos.x -= BLK_SIZE;
+						} else if (player_dir == 3) {
+							// Player is pushing the crate right
+							crate_pos.x += BLK_SIZE;
+						}
                                         }
                         	}
 
