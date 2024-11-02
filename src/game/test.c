@@ -13,10 +13,16 @@
 #define BLK_HEIGHT 15
 #define BLK_WIDTH 20
 
+struct level_blocks {
+	int x_pos, y_pos;
+	//char block_type;
+};
+
 int main() {
 	SDL_Surface *screen;                                         
-        SDL_Surface *image;
-	SDL_Rect sprite_position;
+	SDL_Surface *bg;
+	
+	SDL_Rect player_pos;
 	SDL_Event event;
 	int game_over = 0;
 
@@ -33,11 +39,12 @@ int main() {
 	//SDL_DC_VerticalWait(SDL_FALSE);
 	//SDL_DC_SetVideoDriver(SDL_DC_DMA_VIDEO);
 
-        image = IMG_Load("assets/player.png");
-	SDL_DisplayFormat(image);
+        SDL_Surface *player_sprite;
+        player_sprite = IMG_Load("assets/player.png");
+	SDL_DisplayFormat(player_sprite);
 
-	sprite_position.x = 0;
-	sprite_position.y = 0;
+	player_pos.x = 0;
+	player_pos.y = 0;
 
 	// Draw Level (Put into function)
 	FILE *lvl_file = fopen("levels/lvl01.lvl", "r");
@@ -45,24 +52,38 @@ int main() {
 		printf("File open failed.\n");
 	}
 
-	char temp_row_read[256]; // 256 buffer length
+	SDL_Surface *wall_sprite;
+	wall_sprite = IMG_Load("assets/wall.png");
+	SDL_DisplayFormat(wall_sprite);
+	SDL_Rect wall_pos;
+
+	char temp_row_read[300]; // Should be enough
 	int x_counter = 0;
 	int y_counter = 0;
+	struct level_blocks level_01_array[300];
 
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		fscanf(lvl_file, "%s", &temp_row_read);
 		for (int j = 0; j < BLK_WIDTH; j++) {
-			printf("x_pos: %d | y_pos: %d | %c\n",
-					x_counter,
-					y_counter,
-					temp_row_read[j]);
+			level_01_array[j].y_pos = y_counter;
 			y_counter++;
 		}
+		level_01_array[i].x_pos = x_counter;
 		x_counter++;
-		y_counter = 0;
+		y_counter = 0; // Reset counter when row finishes
 	}
 	fclose(lvl_file);
 
+	for (int i = 0; i < BLK_HEIGHT; i++) {
+		for (int j = 0; j < BLK_WIDTH; j++) {
+			printf("x_pos: %d | y_pos: %d | %c\n",
+					level_01_array[i].x_pos,
+					level_01_array[j].y_pos,
+					'c');
+		}
+	}
+
+	// Game loop
 	while (!game_over)
 	{
 		if (SDL_PollEvent(&event)) {
@@ -71,26 +92,32 @@ int main() {
 					game_over = 1;
 				}
 				if (event.key.keysym.sym == SDLK_UP) {
-                                        sprite_position.y -= 32;
+                                        player_pos.y -= 32;
                                 }
 				if (event.key.keysym.sym == SDLK_DOWN) {
-                                        sprite_position.y += 32;
+                                        player_pos.y += 32;
                                 }
 				if (event.key.keysym.sym == SDLK_LEFT) {
-                                        sprite_position.x -= 32;
+                                        player_pos.x -= 32;
                                 }
 				if (event.key.keysym.sym == SDLK_RIGHT) {
-                                        sprite_position.x += 32;
+                                        player_pos.x += 32;
                                 }
 			}
 		}
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
-		SDL_BlitSurface(image, NULL, screen, &sprite_position);
+		for (int i = 0; i < BLK_HEIGHT; i++) {
+			for (int j = 0; j < BLK_WIDTH; j++) {
+				//SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
+			}
+		}
+
+		SDL_BlitSurface(player_sprite, NULL, screen, &player_pos);
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
 	}
 
-	SDL_FreeSurface(image);
+	SDL_FreeSurface(player_sprite);
 	SDL_Quit();
 
 	printf("Hello World!\n");
