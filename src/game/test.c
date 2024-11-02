@@ -29,13 +29,20 @@ int main() {
 
         image = IMG_Load("image1.bmp");
 	SDL_DisplayFormat(image);
-	SDL_FreeSurface(image);
 
 	sprite_position.x = 0;
 	sprite_position.y = 0;
 
 	while (!game_over)
 	{
+		if (SDL_PollEvent(&event)) {
+			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_q) {
+					game_over = 1;
+				}
+			}
+		}
+
 		SDL_BlitSurface(image, NULL, screen, &sprite_position);
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
 	}
