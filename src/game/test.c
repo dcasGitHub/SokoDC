@@ -122,8 +122,9 @@ int main() {
 		total_counter = 0;
 		for (int i = 0; i < BLK_HEIGHT; i++) {
 			for (int j = 0; j < BLK_WIDTH; j++) {
-				wall_pos.y = level_01_array[j].y_pos * 16;
-				wall_pos.x = level_01_array[i].x_pos * 16;
+				// TODO: Figure out why wall_pos.* needs to be flipped
+				wall_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+				wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 				if (level_01_array[total_counter].block_type == '1') {
 					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
 				}
