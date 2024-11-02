@@ -15,7 +15,7 @@
 
 struct level_blocks {
 	int x_pos, y_pos;
-	//char block_type;
+	char block_type;
 };
 
 int main() {
@@ -58,30 +58,40 @@ int main() {
 	SDL_Rect wall_pos;
 
 	char temp_row_read[300]; // Should be enough
+	char temp_char_read;
 	int x_counter = 0;
 	int y_counter = 0;
+	int total_counter = 0;
 	struct level_blocks level_01_array[300];
 
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		fscanf(lvl_file, "%s", &temp_row_read);
 		for (int j = 0; j < BLK_WIDTH; j++) {
 			level_01_array[j].y_pos = y_counter;
+			level_01_array[i].x_pos = x_counter;
+			level_01_array[total_counter].block_type
+				= temp_row_read[j];
 			y_counter++;
+			total_counter++;
 		}
-		level_01_array[i].x_pos = x_counter;
 		x_counter++;
 		y_counter = 0; // Reset counter when row finishes
 	}
 	fclose(lvl_file);
 
+	printf("\n");
+
+	/*int total_counter_2 = 0;
+
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		for (int j = 0; j < BLK_WIDTH; j++) {
-			printf("x_pos: %d | y_pos: %d | %c\n",
-					level_01_array[i].x_pos,
+			printf("%d | %d | %c\n",
 					level_01_array[j].y_pos,
-					'c');
+					level_01_array[i].x_pos,
+					level_01_array[total_counter_2].block_type);
+			total_counter_2++;
 		}
-	}
+	}*/
 
 	// Game loop
 	while (!game_over)
@@ -106,12 +116,6 @@ int main() {
 			}
 		}
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-
-		for (int i = 0; i < BLK_HEIGHT; i++) {
-			for (int j = 0; j < BLK_WIDTH; j++) {
-				//SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
-			}
-		}
 
 		SDL_BlitSurface(player_sprite, NULL, screen, &player_pos);
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
