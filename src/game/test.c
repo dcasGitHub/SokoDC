@@ -118,6 +118,19 @@ int main() {
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
 		SDL_BlitSurface(player_sprite, NULL, screen, &player_pos);
+
+		total_counter = 0;
+		for (int i = 0; i < BLK_HEIGHT; i++) {
+			for (int j = 0; j < BLK_WIDTH; j++) {
+				wall_pos.y = level_01_array[j].y_pos * 16;
+				wall_pos.x = level_01_array[i].x_pos * 16;
+				if (level_01_array[total_counter].block_type == '1') {
+					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
+				}
+				total_counter++;
+			}
+		}
+
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
 	}
 
