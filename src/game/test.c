@@ -20,7 +20,6 @@ struct level_blocks {
 
 int main() {
 	SDL_Surface *screen;                                         
-	SDL_Surface *bg;
 	
 	SDL_Rect player_pos;
 	SDL_Event event;
@@ -38,10 +37,12 @@ int main() {
 	//SDL_DC_Default60Hz(SDL_FALSE);
 	//SDL_DC_VerticalWait(SDL_FALSE);
 	//SDL_DC_SetVideoDriver(SDL_DC_DMA_VIDEO);
+	
+	SDL_Surface *bg;
+	bg = IMG_Load("assets/bg.png");
 
         SDL_Surface *player_sprite;
         player_sprite = IMG_Load("assets/player.png");
-	SDL_DisplayFormat(player_sprite);
 
 	player_pos.x = 0;
 	player_pos.y = 0;
@@ -54,15 +55,14 @@ int main() {
 
 	SDL_Surface *wall_sprite;
 	wall_sprite = IMG_Load("assets/wall.png");
-	SDL_DisplayFormat(wall_sprite);
 	SDL_Rect wall_pos;
 
-	char temp_row_read[300]; // Should be enough
+	char temp_row_read[BLK_HEIGHT * BLK_WIDTH];
 	char temp_char_read;
 	int x_counter = 0;
 	int y_counter = 0;
 	int total_counter = 0;
-	struct level_blocks level_01_array[300];
+	struct level_blocks level_01_array[BLK_HEIGHT * BLK_WIDTH];
 
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		fscanf(lvl_file, "%s", &temp_row_read);
@@ -81,41 +81,53 @@ int main() {
 
 	printf("\n");
 
-	/*int total_counter_2 = 0;
+	int total_counter_2 = 0; // We will need to seperate this
 
 	for (int i = 0; i < BLK_HEIGHT; i++) {
 		for (int j = 0; j < BLK_WIDTH; j++) {
-			printf("%d | %d | %c\n",
+			/*printf("%d | %d | %c\n",
 					level_01_array[j].y_pos,
 					level_01_array[i].x_pos,
-					level_01_array[total_counter_2].block_type);
+					level_01_array[total_counter_2].block_type);*/
+			if (level_01_array[total_counter_2].block_type == 'p') {
+				// Flipped player_pos.*
+				player_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+				player_pos.y = level_01_array[i].x_pos * BLK_SIZE;
+				printf("player_pos_y %d\n | player_pos_x %d\n",
+						player_pos.x, player_pos.y); 
+			}
 			total_counter_2++;
 		}
-	}*/
+	}
 
 	// Game loop
+	SDL_Rect prev_player_pos;
 	while (!game_over)
 	{
+		prev_player_pos = player_pos;
+
 		if (SDL_PollEvent(&event)) {
 			if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_q) {
 					game_over = 1;
 				}
 				if (event.key.keysym.sym == SDLK_UP) {
-                                        player_pos.y -= 32;
+                                        player_pos.y -= BLK_SIZE;
                                 }
 				if (event.key.keysym.sym == SDLK_DOWN) {
-                                        player_pos.y += 32;
+                                        player_pos.y += BLK_SIZE;
                                 }
 				if (event.key.keysym.sym == SDLK_LEFT) {
-                                        player_pos.x -= 32;
+                                        player_pos.x -= BLK_SIZE;
                                 }
 				if (event.key.keysym.sym == SDLK_RIGHT) {
-                                        player_pos.x += 32;
+                                        player_pos.x += BLK_SIZE;
                                 }
 			}
 		}
+
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+		SDL_BlitSurface(bg, NULL, screen, NULL);
 
 		SDL_BlitSurface(player_sprite, NULL, screen, &player_pos);
 
@@ -127,6 +139,13 @@ int main() {
 				wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 				if (level_01_array[total_counter].block_type == '1') {
 					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
+					if (player_pos.x < wall_pos.x + BLK_SIZE &&
+							player_pos.x + player_pos.w > wall_pos.x &&
+							player_pos.y < wall_pos.y + BLK_SIZE &&
+							player_pos.y + player_pos.h > wall_pos.y) {
+						// Collision detected, reset the player's position
+						player_pos = prev_player_pos;
+					}	
 				}
 				total_counter++;
 			}
