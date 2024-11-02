@@ -1,4 +1,4 @@
-//#include <stdio.h>
+#include <stdio.h>
 //#include <SDL.h>
 //#include <SDL_image.h>
 //#include <SDL_dreamcast.h>
@@ -40,8 +40,12 @@ int main() {
 				if (event.key.keysym.sym == SDLK_q) {
 					game_over = 1;
 				}
+				if (event.key.keysym.sym == SDLK_DOWN) {
+                                        sprite_position.y += 100;
+                                }
 			}
 		}
+		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
 		SDL_BlitSurface(image, NULL, screen, &sprite_position);
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
