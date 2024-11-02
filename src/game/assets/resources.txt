@@ -5,3 +5,5 @@ https://opengameart.org/content/stone-bricks-floor (walls)
 https://opengameart.org/content/space-backgrounds-with-stars-and-nubular (background)
 
 https://opengameart.org/content/player-base-from-crosstown-smash-redshrike-mod (head)
+
+https://opengameart.org/content/gem-jewel-diamond-glass (gem)

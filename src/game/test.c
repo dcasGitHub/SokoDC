@@ -18,13 +18,6 @@ struct level_blocks {
 	char block_type;
 };
 
-/*enum player_dir {
-	UP = 0,
-	DOWN = 1,
-	LEFT = 2,
-	RIGHT = 3
-};*/
-
 int main() {
 	SDL_Surface *screen;                                         
 	
@@ -68,6 +61,10 @@ int main() {
 	SDL_Surface *crate_sprite;
 	crate_sprite = IMG_Load("assets/crate.png");
         SDL_Rect crate_pos;
+
+	SDL_Surface *gem_sprite;
+	gem_sprite = IMG_Load("assets/gem.png");
+        SDL_Rect gem_pos;
 
 	char temp_row_read[BLK_HEIGHT * BLK_WIDTH];
 	char temp_char_read;
@@ -113,15 +110,18 @@ int main() {
                                 crate_pos.x = level_01_array[j].y_pos * BLK_SIZE;
                                 crate_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 			}
+
 			total_counter_2++;
 		}
 	}
 
 	// Game loop
 	SDL_Rect prev_player_pos;
+	SDL_Rect prev_crate_pos;
 	while (!game_over)
 	{
 		prev_player_pos = player_pos;
+		prev_crate_pos = crate_pos;
 
 		if (SDL_PollEvent(&event)) {
 			if (event.type == SDL_KEYDOWN) {
@@ -155,18 +155,10 @@ int main() {
 		total_counter = 0;
 		for (int i = 0; i < BLK_HEIGHT; i++) {
 			for (int j = 0; j < BLK_WIDTH; j++) {
-				// TODO: Figure out why wall_pos.* needs to be flipped
-				if (level_01_array[total_counter].block_type == '1') {
-					wall_pos.x = level_01_array[j].y_pos * BLK_SIZE;
-					wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
-					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
-					if (player_pos.x < wall_pos.x + BLK_SIZE &&
-							player_pos.x + player_pos.w > wall_pos.x &&
-							player_pos.y < wall_pos.y + BLK_SIZE &&
-							player_pos.y + player_pos.h > wall_pos.y) {
-						// Collision detected, reset the player's position
-						player_pos = prev_player_pos;
-					}
+				if (level_01_array[total_counter].block_type == 's') {
+					gem_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+					gem_pos.y = level_01_array[i].x_pos * BLK_SIZE;
+					SDL_BlitSurface(gem_sprite, NULL, screen, &gem_pos);
 				}
 
 				if (level_01_array[total_counter].block_type == 'b') {
@@ -190,10 +182,36 @@ int main() {
 							crate_pos.x += BLK_SIZE;
 						}
                                         }
+					/*if (crate_pos.x < wall_pos.x + BLK_SIZE &&
+							crate_pos.x + crate_pos.w > wall_pos.x &&
+							crate_pos.y < wall_pos.y + BLK_SIZE &&
+							crate_pos.y + crate_pos.h > wall_pos.y) {
+						// Collision detected, reset the crate's position
+						printf("You pushed the crate into the wall!");
+						crate_pos = prev_crate_pos;
+					}*/
                         	}
+
+				// TODO: Figure out why wall_pos.* needs to be flipped
+				if (level_01_array[total_counter].block_type == '1') {
+					wall_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+					wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
+					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
+					if (player_pos.x < wall_pos.x + BLK_SIZE &&
+							player_pos.x + player_pos.w > wall_pos.x &&
+							player_pos.y < wall_pos.y + BLK_SIZE &&
+							player_pos.y + player_pos.h > wall_pos.y) {
+						// Collision detected, reset the player's position
+						player_pos = prev_player_pos;
+					}
+				}	
 
 				total_counter++;
 			}
+		}
+
+		if (crate_pos.x == gem_pos.x && crate_pos.y == gem_pos.y) {
+			game_over = 1;
 		}
 
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
