@@ -21,7 +21,6 @@ struct level_blocks {
 int main() {
 	SDL_Surface *screen;                                         
 	
-	SDL_Rect player_pos;
 	SDL_Event event;
 	int game_over = 0;
 
@@ -42,6 +41,7 @@ int main() {
 	bg = IMG_Load("assets/bg.png");
 
         SDL_Surface *player_sprite;
+	SDL_Rect player_pos;
         player_sprite = IMG_Load("assets/player.png");
 
 	player_pos.x = 0;
@@ -56,6 +56,10 @@ int main() {
 	SDL_Surface *wall_sprite;
 	wall_sprite = IMG_Load("assets/wall.png");
 	SDL_Rect wall_pos;
+
+	SDL_Surface *crate_sprite;
+	crate_sprite = IMG_Load("assets/crate.png");
+        SDL_Rect crate_pos;
 
 	char temp_row_read[BLK_HEIGHT * BLK_WIDTH];
 	char temp_char_read;
@@ -89,12 +93,17 @@ int main() {
 					level_01_array[j].y_pos,
 					level_01_array[i].x_pos,
 					level_01_array[total_counter_2].block_type);*/
+			
+			// TODO: Put these into functions (and consolidate sprites to structs)
 			if (level_01_array[total_counter_2].block_type == 'p') {
-				// Flipped player_pos.*
+				// Flipped *_pos.*
 				player_pos.x = level_01_array[j].y_pos * BLK_SIZE;
 				player_pos.y = level_01_array[i].x_pos * BLK_SIZE;
-				printf("player_pos_y %d\n | player_pos_x %d\n",
-						player_pos.x, player_pos.y); 
+			}
+			if (level_01_array[total_counter_2].block_type == 'b') {
+                                // Flipped *_pos.*
+                                crate_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+                                crate_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 			}
 			total_counter_2++;
 		}
@@ -135,9 +144,9 @@ int main() {
 		for (int i = 0; i < BLK_HEIGHT; i++) {
 			for (int j = 0; j < BLK_WIDTH; j++) {
 				// TODO: Figure out why wall_pos.* needs to be flipped
-				wall_pos.x = level_01_array[j].y_pos * BLK_SIZE;
-				wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 				if (level_01_array[total_counter].block_type == '1') {
+					wall_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+					wall_pos.y = level_01_array[i].x_pos * BLK_SIZE;
 					SDL_BlitSurface(wall_sprite, NULL, screen, &wall_pos);
 					if (player_pos.x < wall_pos.x + BLK_SIZE &&
 							player_pos.x + player_pos.w > wall_pos.x &&
@@ -145,8 +154,22 @@ int main() {
 							player_pos.y + player_pos.h > wall_pos.y) {
 						// Collision detected, reset the player's position
 						player_pos = prev_player_pos;
-					}	
+					}
 				}
+
+				if (level_01_array[total_counter].block_type == 'b') {
+					//crate_pos.x = level_01_array[j].y_pos * BLK_SIZE;
+					//crate_pos.y = level_01_array[i].x_pos * BLK_SIZE;
+					SDL_BlitSurface(crate_sprite, NULL, screen, &crate_pos);
+					if (player_pos.x < crate_pos.x + BLK_SIZE &&
+                                                        player_pos.x + player_pos.w > crate_pos.x &&
+                                                        player_pos.y < crate_pos.y + BLK_SIZE &&
+                                                        player_pos.y + player_pos.h > crate_pos.y) {
+                                                // Collision detected, reset the player's position
+                                                crate_pos.x += BLK_SIZE;
+                                        }
+                        	}
+
 				total_counter++;
 			}
 		}
@@ -154,6 +177,7 @@ int main() {
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
 	}
 
+	// TODO: Free all memory for all sprites
 	SDL_FreeSurface(player_sprite);
 	SDL_Quit();
 
